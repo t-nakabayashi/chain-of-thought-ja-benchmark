@@ -163,23 +163,6 @@ mistral_mawps_zero_shot.json
 
 これにより、長時間のベンチマーク実行中に中断した場合でも、途中経過を確認できます。
 
-## 貢献方法
-
-1. このリポジトリをフォークします。
-2. 新しいブランチを作成します（`git checkout -b feature/amazing-feature`）。
-3. 変更をコミットします（`git commit -m 'Add some amazing feature'`）。
-4. ブランチにプッシュします（`git push origin feature/amazing-feature`）。
-5. プルリクエストを作成します。
-
 ## ライセンス
 
 このプロジェクトはMITライセンスの下で公開されています。詳細は[LICENSE](LICENSE)ファイルを参照してください。
-
-## 作成者
-
-- **名前**: Tatsuhiko Nakabayashi
-- **連絡先**: nakaba_tokutoku@hotmail.com
-
-## 謝辞
-
-このプロジェクトは、[nlp-waseda/chain-of-thought-ja-dataset](https://github.com/nlp-waseda/chain-of-thought-ja-dataset)の日本語Chain-of-Thoughtデータセットを使用しています。データセットの作成者に感謝いたします。
