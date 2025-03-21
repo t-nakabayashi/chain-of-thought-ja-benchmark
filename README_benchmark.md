@@ -2,15 +2,9 @@
 
 このリポジトリは、[nlp-waseda/chain-of-thought-ja-dataset](https://github.com/nlp-waseda/chain-of-thought-ja-dataset)の日本語Chain-of-Thoughtデータセットを使用して、言語モデルのベンチマークを実施するためのツールを提供します。
 
-## 概要
-
-このツールを使用すると、ローカルで実行されているLLM（Large Language Model）の日本語での推論能力を評価することができます。特に、Chain-of-Thought（思考の連鎖）プロンプトを使用した場合と使用しない場合の性能差を測定することができます。
-
-現在、このツールはOllamaで実行されているモデルに対応しています。
-
 ## データセット概要
 
-このデータセットには、以下の4つのカテゴリが含まれています：
+このデータセットには、以下の3つのカテゴリが含まれています：
 
 1. **jcommonsenseqa**: 常識推論のデータセット（1,119問）
    - 選択肢から正解を選ぶ形式の問題
@@ -24,57 +18,17 @@
    - 文章題を解く形式の問題
    - 例: 「佐藤は16個の青い風船、鈴木は11個の青い風船、高橋は99個の青い風船を持っています。彼らは全部でいくつの青い風船を持っているのでしょう？」
 
-4. **mgsm**: 多言語の算数文章題データセット（250問）
-   - 複雑な算数の文章題を解く形式の問題
-   - 例: 「ジャネットのアヒルは1日に16個の卵を生みます。ジャネットは毎朝朝食の一環で3個を消費し、毎日4個使って友達向けにマフィンを焼きます。残りを市場で1個あたり2ドルの価格で売ります。彼女は毎日市場でいくら手に入れていますか？」
-
 各カテゴリには、テストデータとChain-of-Thoughtプロンプトのshotに用いる8問の問題と解答が含まれています。
 
-## インストール方法
+## 必要な依存関係
 
-### 前提条件
-
-- Python 3.8以上
-- Ollama（ローカルLLMサーバー）
-
-### 手順
-
-1. このリポジトリをクローンします：
+このスクリプトを実行するには、以下の依存関係が必要です：
 
 ```bash
-git clone https://github.com/t-nakabayashi/chain-of-thought-ja-benchmark.git
-cd chain-of-thought-ja-benchmark
-```
-
-2. 仮想環境を作成し、依存関係をインストールします：
-
-```bash
-# uvを使用する場合
-uv venv
-.venv\Scripts\activate.bat  # Windowsの場合
-source .venv/bin/activate   # macOS/Linuxの場合
-uv pip install requests
-
-# pipを使用する場合
-python -m venv .venv
-.venv\Scripts\activate.bat  # Windowsの場合
-source .venv/bin/activate   # macOS/Linuxの場合
 pip install requests
 ```
 
-3. 必要なデータセットをダウンロードします：
-
-```bash
-# jcommonsenseqa、last_letter_connection、mawpsデータセット
-# これらは自動的にダウンロードされるため、特別な操作は不要です
-
-# MGSMデータセット（多言語の算数文章題）
-mkdir -p dataset/mgsm
-curl -o dataset/mgsm/mgsm_ja.tsv https://raw.githubusercontent.com/google-research/url-nlp/main/mgsm/mgsm_ja.tsv
-python convert_mgsm.py  # TSVファイルをJSONフォーマットに変換
-```
-
-4. Ollamaをインストールして実行します。インストール方法については、[Ollamaの公式ドキュメント](https://ollama.ai/)を参照してください。
+また、ローカルでOllamaが実行されている必要があります。Ollamaのインストール方法については、[Ollamaの公式ドキュメント](https://ollama.ai/)を参照してください。
 
 ## ベンチマークの実行方法
 
@@ -99,7 +53,6 @@ python benchmark.py llama3
   - `jcommonsenseqa`: 常識推論のデータセットのみ
   - `last_letter_connection`: 記号推論のデータセットのみ
   - `mawps`: 算数のデータセットのみ
-  - `mgsm`: 多言語の算数文章題データセットのみ
   - `all`: すべてのデータセット
 
 例：
@@ -154,24 +107,3 @@ mistral_mawps_zero_shot.json
 ```
 
 これにより、長時間のベンチマーク実行中に中断した場合でも、途中経過を確認できます。
-
-## 貢献方法
-
-1. このリポジトリをフォークします。
-2. 新しいブランチを作成します（`git checkout -b feature/amazing-feature`）。
-3. 変更をコミットします（`git commit -m 'Add some amazing feature'`）。
-4. ブランチにプッシュします（`git push origin feature/amazing-feature`）。
-5. プルリクエストを作成します。
-
-## ライセンス
-
-このプロジェクトはMITライセンスの下で公開されています。詳細は[LICENSE](LICENSE)ファイルを参照してください。
-
-## 作成者
-
-- **名前**: Tatsuhiko Nakabayashi
-- **連絡先**: nakaba_tokutoku@hotmail.com
-
-## 謝辞
-
-このプロジェクトは、[nlp-waseda/chain-of-thought-ja-dataset](https://github.com/nlp-waseda/chain-of-thought-ja-dataset)の日本語Chain-of-Thoughtデータセットを使用しています。データセットの作成者に感謝いたします。
