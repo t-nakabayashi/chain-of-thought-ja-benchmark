@@ -70,6 +70,7 @@ pip install requests google-generativeai
 # これらは自動的にダウンロードされるため、特別な操作は不要です
 
 # MGSMデータセット（多言語の算数文章題）
+# 本リポジトリに既に含まれているため、特別な操作は不要です。ほかの言語を使用したい場合は以下を参考にしてください。
 mkdir -p dataset/mgsm
 curl -o dataset/mgsm/mgsm_ja.tsv https://raw.githubusercontent.com/google-research/url-nlp/main/mgsm/mgsm_ja.tsv
 python convert_mgsm.py  # TSVファイルをJSONフォーマットに変換
