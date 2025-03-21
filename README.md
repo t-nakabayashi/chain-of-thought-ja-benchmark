@@ -6,7 +6,7 @@
 
 このツールを使用すると、ローカルで実行されているLLM（Large Language Model）の日本語での推論能力を評価することができます。特に、Chain-of-Thought（思考の連鎖）プロンプトを使用した場合と使用しない場合の性能差を測定することができます。
 
-現在、このツールはOllamaで実行されているモデルに対応しています。
+現在、このツールはOllamaで実行されているモデルおよびGoogle Gemini 2.0 Flashモデルに対応しています。
 
 ## データセット概要
 
@@ -35,7 +35,8 @@
 ### 前提条件
 
 - Python 3.8以上
-- Ollama（ローカルLLMサーバー）
+- Ollama（ローカルLLMサーバーを使用する場合）
+- Google AI Studio APIキー（Gemini 2.0 Flashモデルを使用する場合）
 
 ### 手順
 
@@ -53,13 +54,13 @@ cd chain-of-thought-ja-benchmark
 uv venv
 .venv\Scripts\activate.bat  # Windowsの場合
 source .venv/bin/activate   # macOS/Linuxの場合
-uv pip install requests
+uv pip install requests google-generativeai
 
 # pipを使用する場合
 python -m venv .venv
 .venv\Scripts\activate.bat  # Windowsの場合
 source .venv/bin/activate   # macOS/Linuxの場合
-pip install requests
+pip install requests google-generativeai
 ```
 
 3. 必要なデータセットをダウンロードします：
@@ -102,6 +103,10 @@ python benchmark.py llama3
   - `mgsm`: 多言語の算数文章題データセットのみ
   - `all`: すべてのデータセット
 
+- `--api-key`: Gemini 2.0 Flashモデルを使用する場合に必要なAPIキー
+  - Google AI StudioからAPIキーを取得する必要があります
+  - このオプションは`gemini2.0-flash`モデルを使用する場合のみ必要です
+
 例：
 ```bash
 # llama3モデルでzero-shotプロンプトを使用して常識推論のデータセットのみをベンチマーク
@@ -109,6 +114,9 @@ python benchmark.py llama3 --shot-type zero_shot --dataset jcommonsenseqa
 
 # mistralモデルでChain-of-Thoughtプロンプトを使用してすべてのデータセットをベンチマーク
 python benchmark.py mistral --shot-type shot --dataset all
+
+# Gemini 2.0 Flashモデルを使用してMGSMデータセットをベンチマーク
+python benchmark.py gemini2.0-flash --dataset mgsm --shot-type shot --api-key YOUR_API_KEY
 ```
 
 ### 注意事項

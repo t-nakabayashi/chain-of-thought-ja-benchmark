@@ -11,6 +11,7 @@
 1. **ベンチマークスクリプト（benchmark.py）**：メインのスクリプトで、データセットの読み込み、モデルへの問い合わせ、結果の評価と保存を行います。
 2. **データセット**：4つのカテゴリ（jcommonsenseqa、last_letter_connection、mawps、mgsm）のデータセットが含まれています。
 3. **Ollamaサーバー**：ローカルで実行されるLLMサーバーで、APIを通じてモデルに問い合わせを行います。
+4. **Google Gemini API**：Google Gemini 2.0 Flashモデルに問い合わせるためのAPIです。
 
 ## 3. モジュール設計
 
@@ -23,6 +24,7 @@
 - `load_shot_examples(dataset_name, shot_type)`: shot_exampleまたはzero_shot_exampleを読み込む関数
 - `create_prompt(question, shot_examples, shot_type)`: プロンプトを作成する関数
 - `query_ollama(prompt, model_name)`: ollamaのAPIを使用してモデルに問い合わせる関数
+- `query_gemini(prompt, api_key, max_retries=5)`: Google Gemini APIを使用してモデルに問い合わせる関数
 
 ### 3.2 回答抽出関数
 
@@ -40,10 +42,10 @@
 
 ### 3.4 ベンチマーク実行関数
 
-- `evaluate_jcommonsenseqa(model_name, shot_type)`: jcommonsenseqaのベンチマークを実施する関数
-- `evaluate_last_letter_connection(model_name, shot_type)`: last_letter_connectionのベンチマークを実施する関数
-- `evaluate_mawps(model_name, shot_type)`: mawpsのベンチマークを実施する関数
-- `evaluate_mgsm(model_name, shot_type)`: mgsmのベンチマークを実施する関数
+- `evaluate_jcommonsenseqa(model_name, shot_type, api_key=None)`: jcommonsenseqaのベンチマークを実施する関数
+- `evaluate_last_letter_connection(model_name, shot_type, api_key=None)`: last_letter_connectionのベンチマークを実施する関数
+- `evaluate_mawps(model_name, shot_type, api_key=None)`: mawpsのベンチマークを実施する関数
+- `evaluate_mgsm(model_name, shot_type, api_key=None)`: mgsmのベンチマークを実施する関数
 
 ### 3.5 結果保存関数
 
@@ -56,9 +58,11 @@
 
 ## 4. データフロー
 
-1. ユーザーがコマンドラインからベンチマークスクリプトを実行し、モデル名、データセット、プロンプトタイプを指定します。
+1. ユーザーがコマンドラインからベンチマークスクリプトを実行し、モデル名、データセット、プロンプトタイプを指定します。Gemini 2.0 Flashモデルを使用する場合は、APIキーも指定します。
 2. スクリプトは指定されたデータセットとshot_exampleを読み込みます。
-3. 各問題に対して、プロンプトを作成し、Ollamaサーバーを通じてモデルに問い合わせます。
+3. 各問題に対して、プロンプトを作成します。
+   - Ollamaモデルの場合は、Ollamaサーバーを通じてモデルに問い合わせます。
+   - Gemini 2.0 Flashモデルの場合は、Google Gemini APIを通じてモデルに問い合わせます。
 4. モデルの回答から答えを抽出し、正解と比較して正誤を判定します。
 5. 10問ごとに進捗状況を保存し、最終的な結果をJSONファイルとして保存します。
 
@@ -120,12 +124,14 @@
 
 ### 6.1 他のLLMフレームワークへの対応
 
-現在はOllamaのみに対応していますが、将来的には以下のフレームワークにも対応することが考えられます：
+現在はOllamaとGoogle Gemini APIに対応していますが、将来的には以下のフレームワークにも対応することが考えられます：
 
 - llama.cpp
 - LocalAI
 - Text Generation WebUI
-- その他のローカルLLMフレームワーク
+- OpenAI API
+- Anthropic API
+- その他のLLMフレームワーク
 
 ### 6.2 回答抽出の改善
 
@@ -145,4 +151,14 @@
 
 ## 7. 結論
 
-このプロジェクトは、日本語Chain-of-Thoughtデータセットを使用して、ローカルLLMの日本語での推論能力を評価するためのツールを提供します。現在はOllamaに対応していますが、将来的には他のフレームワークにも対応することで、より幅広いモデルの評価が可能になります。
+このプロジェクトは、日本語Chain-of-Thoughtデータセットを使用して、LLMの日本語での推論能力を評価するためのツールを提供します。現在はOllamaとGoogle Gemini APIに対応しており、ローカルモデルとクラウドモデルの両方を評価することができます。将来的には他のフレームワークにも対応することで、より幅広いモデルの評価が可能になります。
+
+### 7.1 Gemini APIの実装
+
+Gemini APIの実装では、以下の機能を追加しました：
+
+1. APIキーを使用してGemini 2.0 Flashモデルに問い合わせる機能
+2. エラー処理（APIキーがない場合のエラーメッセージ、リトライ処理）
+3. コマンドライン引数でAPIキーを指定する機能
+
+これにより、ローカルモデルだけでなく、クラウドベースの最新モデルでもベンチマークを実行できるようになりました。

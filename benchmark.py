@@ -5,6 +5,7 @@ import re
 import time
 from pathlib import Path
 import requests
+import google.generativeai as genai
 
 
 def sanitize_model_name(model_name):
@@ -46,6 +47,33 @@ def query_ollama(prompt, model_name):
     except requests.exceptions.RequestException as e:
         print(f"Error querying Ollama: {e}")
         return None
+
+
+def query_gemini(prompt, api_key, max_retries=5):
+    """Gemini APIを使用してモデルに問い合わせる"""
+    if not api_key:
+        print("Error: API key is required for Gemini models")
+        return None
+
+    # Gemini APIの設定
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel("gemini-1.5-flash")
+
+    retry_count = 0
+    while retry_count < max_retries:
+        try:
+            # モデルに問い合わせ
+            response = model.generate_content(prompt)
+            return response.text
+        except Exception as e:
+            retry_count += 1
+            if retry_count < max_retries:
+                print(f"Error querying Gemini API: {e}")
+                print(f"Retrying in 10 seconds... (Attempt {retry_count}/{max_retries})")
+                time.sleep(10)
+            else:
+                print(f"Failed to query Gemini API after {max_retries} attempts: {e}")
+                return None
 
 
 def extract_answer_jcommonsenseqa(response):
@@ -242,7 +270,7 @@ def is_correct_mgsm(predicted, expected):
         return False
 
 
-def evaluate_jcommonsenseqa(model_name, shot_type="shot"):
+def evaluate_jcommonsenseqa(model_name, shot_type="shot", api_key=None):
     """jcommonsenseqaのベンチマークを実施する"""
     dataset_name = "jcommonsenseqa"
     test_data = load_dataset(f"dataset/{dataset_name}/test.json")
@@ -264,7 +292,12 @@ def evaluate_jcommonsenseqa(model_name, shot_type="shot"):
 
         print(f"Querying model...")
         prompt = create_prompt(question, shot_examples, shot_type)
-        response = query_ollama(prompt, model_name)
+
+        # モデルに応じてクエリ関数を選択
+        if model_name == "gemini2.0-flash":
+            response = query_gemini(prompt, api_key)
+        else:
+            response = query_ollama(prompt, model_name)
 
         if response is None:
             predicted = "Error"
@@ -306,7 +339,7 @@ def evaluate_jcommonsenseqa(model_name, shot_type="shot"):
     }
 
 
-def evaluate_last_letter_connection(model_name, shot_type="shot"):
+def evaluate_last_letter_connection(model_name, shot_type="shot", api_key=None):
     """last_letter_connectionのベンチマークを実施する"""
     dataset_name = "last_letter_connection"
     test_data = load_dataset(f"dataset/{dataset_name}/test.json")
@@ -328,7 +361,12 @@ def evaluate_last_letter_connection(model_name, shot_type="shot"):
 
         print(f"Querying model...")
         prompt = create_prompt(question, shot_examples, shot_type)
-        response = query_ollama(prompt, model_name)
+
+        # モデルに応じてクエリ関数を選択
+        if model_name == "gemini2.0-flash":
+            response = query_gemini(prompt, api_key)
+        else:
+            response = query_ollama(prompt, model_name)
 
         if response is None:
             predicted = "Error"
@@ -370,7 +408,7 @@ def evaluate_last_letter_connection(model_name, shot_type="shot"):
     }
 
 
-def evaluate_mawps(model_name, shot_type="shot"):
+def evaluate_mawps(model_name, shot_type="shot", api_key=None):
     """mawpsのベンチマークを実施する"""
     dataset_name = "mawps"
     test_data = load_dataset(f"dataset/{dataset_name}/test.json")
@@ -392,7 +430,12 @@ def evaluate_mawps(model_name, shot_type="shot"):
 
         print(f"Querying model...")
         prompt = create_prompt(question, shot_examples, shot_type)
-        response = query_ollama(prompt, model_name)
+
+        # モデルに応じてクエリ関数を選択
+        if model_name == "gemini2.0-flash":
+            response = query_gemini(prompt, api_key)
+        else:
+            response = query_ollama(prompt, model_name)
 
         if response is None:
             predicted = "Error"
@@ -434,7 +477,7 @@ def evaluate_mawps(model_name, shot_type="shot"):
     }
 
 
-def evaluate_mgsm(model_name, shot_type="shot"):
+def evaluate_mgsm(model_name, shot_type="shot", api_key=None):
     """mgsmのベンチマークを実施する"""
     dataset_name = "mgsm"
     test_data = load_dataset(f"dataset/{dataset_name}/test.json")
@@ -456,7 +499,12 @@ def evaluate_mgsm(model_name, shot_type="shot"):
 
         print(f"Querying model...")
         prompt = create_prompt(question, shot_examples, shot_type)
-        response = query_ollama(prompt, model_name)
+
+        # モデルに応じてクエリ関数を選択
+        if model_name == "gemini2.0-flash":
+            response = query_gemini(prompt, api_key)
+        else:
+            response = query_ollama(prompt, model_name)
 
         if response is None:
             predicted = "Error"
@@ -550,8 +598,19 @@ def main():
         default="all",
         help="Dataset to benchmark (default: all)",
     )
+    parser.add_argument(
+        "--api-key",
+        type=str,
+        help="API key for Gemini models (required when model_name is 'gemini2.0-flash')",
+    )
 
     args = parser.parse_args()
+
+    # Geminiモデルの場合はAPIキーが必要
+    if args.model_name == "gemini2.0-flash" and not args.api_key:
+        print("Error: API key is required for Gemini models")
+        print("Please provide an API key using the --api-key option")
+        return
 
     # モデル名のサニタイズ
     sanitized_model_name = sanitize_model_name(args.model_name)
@@ -564,19 +623,19 @@ def main():
     results_dir.mkdir(exist_ok=True)
 
     if args.dataset == "jcommonsenseqa" or args.dataset == "all":
-        results = evaluate_jcommonsenseqa(args.model_name, args.shot_type)
+        results = evaluate_jcommonsenseqa(args.model_name, args.shot_type, args.api_key)
         save_results(results, args.model_name, "jcommonsenseqa", args.shot_type)
 
     if args.dataset == "last_letter_connection" or args.dataset == "all":
-        results = evaluate_last_letter_connection(args.model_name, args.shot_type)
+        results = evaluate_last_letter_connection(args.model_name, args.shot_type, args.api_key)
         save_results(results, args.model_name, "last_letter_connection", args.shot_type)
 
     if args.dataset == "mawps" or args.dataset == "all":
-        results = evaluate_mawps(args.model_name, args.shot_type)
+        results = evaluate_mawps(args.model_name, args.shot_type, args.api_key)
         save_results(results, args.model_name, "mawps", args.shot_type)
 
     if args.dataset == "mgsm" or args.dataset == "all":
-        results = evaluate_mgsm(args.model_name, args.shot_type)
+        results = evaluate_mgsm(args.model_name, args.shot_type, args.api_key)
         save_results(results, args.model_name, "mgsm", args.shot_type)
 
 
