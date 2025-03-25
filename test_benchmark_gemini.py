@@ -5,6 +5,7 @@ import re
 import time
 from pathlib import Path
 import google.generativeai as genai
+from datetime import datetime
 
 
 def sanitize_model_name(model_name):
@@ -108,17 +109,50 @@ def is_correct_mgsm(predicted, expected):
         return False
 
 
+def save_results(results, output_file=None):
+    """テスト結果をファイルに保存する"""
+    # 出力ファイルが指定されていない場合は、現在の日時を使用してファイル名を生成
+    if output_file is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file = f"gemini_mgsm_test_{timestamp}.json"
+
+    # 結果ディレクトリの作成
+    output_path = Path(output_file)
+    output_path.parent.mkdir(exist_ok=True, parents=True)
+
+    # 結果を保存
+    result_data = {
+        "timestamp": datetime.now().isoformat(),
+        "total_questions": len(results),
+        "correct_answers": sum(1 for r in results if r["is_correct"]),
+        "accuracy": sum(1 for r in results if r["is_correct"]) / len(results) if results else 0,
+        "results": results,
+    }
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(result_data, f, ensure_ascii=False, indent=2)
+
+    print(f"Results saved to {output_path}")
+    return output_path
+
+
 def main():
     parser = argparse.ArgumentParser(description="Test Gemini API with MGSM dataset")
     parser.add_argument("api_key", type=str, help="API key for Gemini models")
     parser.add_argument("--num-questions", type=int, default=5, help="Number of questions to test (default: 5)")
+    parser.add_argument(
+        "--output", type=str, help="Output file path to save the results (default: gemini_mgsm_test_YYYYMMDD_HHMMSS.json)"
+    )
+    parser.add_argument(
+        "--shot-type", type=str, choices=["shot", "zero_shot"], default="shot", help="Type of prompting to use (default: shot)"
+    )
 
     args = parser.parse_args()
 
     # MGSMデータセットを読み込む
     dataset_name = "mgsm"
     test_data = load_dataset(f"dataset/{dataset_name}/test.json")
-    shot_examples = load_shot_examples(dataset_name, "shot")
+    shot_examples = load_shot_examples(dataset_name, args.shot_type)
 
     # テスト用に最初のn問だけを使用
     num_questions = min(args.num_questions, len(test_data))
@@ -129,6 +163,7 @@ def main():
     correct = 0
 
     print(f"Testing Gemini API with {total} questions from MGSM dataset")
+    print(f"Shot type: {args.shot_type}")
 
     for i, item in enumerate(test_data):
         print(f"\nProcessing question {i + 1}/{total}...")
@@ -138,7 +173,7 @@ def main():
         print(f"Question: {question}")
         print(f"Expected answer: {answer}")
 
-        prompt = create_prompt(question, shot_examples, "shot")
+        prompt = create_prompt(question, shot_examples, args.shot_type)
         response = query_gemini(prompt, args.api_key)
 
         if response is None:
@@ -155,13 +190,24 @@ def main():
         if is_correct:
             correct += 1
 
-        results.append({"question": question, "answer": answer, "predicted": predicted, "is_correct": is_correct})
+        results.append(
+            {
+                "question": question,
+                "answer": answer,
+                "predicted": predicted,
+                "is_correct": is_correct,
+                "full_response": response,
+            }
+        )
 
         # APIリクエストの間隔を空ける
         time.sleep(1)
 
     accuracy = correct / total
     print(f"\nFinal Accuracy: {accuracy:.4f} ({correct}/{total})")
+
+    # 結果をファイルに保存
+    output_file = save_results(results, args.output)
 
 
 if __name__ == "__main__":

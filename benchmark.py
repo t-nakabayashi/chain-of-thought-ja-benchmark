@@ -270,7 +270,7 @@ def is_correct_mgsm(predicted, expected):
         return False
 
 
-def evaluate_jcommonsenseqa(model_name, shot_type="shot", api_key=None):
+def evaluate_jcommonsenseqa(model_name, shot_type="shot", api_key=None, output_dir="results"):
     """jcommonsenseqaのベンチマークを実施する"""
     dataset_name = "jcommonsenseqa"
     test_data = load_dataset(f"dataset/{dataset_name}/test.json")
@@ -313,7 +313,15 @@ def evaluate_jcommonsenseqa(model_name, shot_type="shot", api_key=None):
         if is_correct:
             correct += 1
 
-        results.append({"question": question, "answer": answer, "predicted": predicted, "is_correct": is_correct})
+        # 結果に完全な回答も含める
+        result_item = {
+            "question": question,
+            "answer": answer,
+            "predicted": predicted,
+            "is_correct": is_correct,
+            "full_response": response,
+        }
+        results.append(result_item)
 
         if (i + 1) % 10 == 0:
             accuracy_so_far = correct / (i + 1)
@@ -321,7 +329,7 @@ def evaluate_jcommonsenseqa(model_name, shot_type="shot", api_key=None):
             print(f"Current accuracy: {accuracy_so_far:.4f} ({correct}/{i + 1})")
             print("=" * 50)
             # 進捗状況を保存
-            save_progress(dataset_name, shot_type, model_name, results, correct, i + 1)
+            save_progress(dataset_name, shot_type, model_name, results, correct, i + 1, output_dir)
 
         # APIリクエストの間隔を空ける
         time.sleep(0.5)
@@ -339,7 +347,7 @@ def evaluate_jcommonsenseqa(model_name, shot_type="shot", api_key=None):
     }
 
 
-def evaluate_last_letter_connection(model_name, shot_type="shot", api_key=None):
+def evaluate_last_letter_connection(model_name, shot_type="shot", api_key=None, output_dir="results"):
     """last_letter_connectionのベンチマークを実施する"""
     dataset_name = "last_letter_connection"
     test_data = load_dataset(f"dataset/{dataset_name}/test.json")
@@ -382,7 +390,15 @@ def evaluate_last_letter_connection(model_name, shot_type="shot", api_key=None):
         if is_correct:
             correct += 1
 
-        results.append({"question": question, "answer": answer, "predicted": predicted, "is_correct": is_correct})
+        # 結果に完全な回答も含める
+        result_item = {
+            "question": question,
+            "answer": answer,
+            "predicted": predicted,
+            "is_correct": is_correct,
+            "full_response": response,
+        }
+        results.append(result_item)
 
         if (i + 1) % 10 == 0:
             accuracy_so_far = correct / (i + 1)
@@ -390,7 +406,7 @@ def evaluate_last_letter_connection(model_name, shot_type="shot", api_key=None):
             print(f"Current accuracy: {accuracy_so_far:.4f} ({correct}/{i + 1})")
             print("=" * 50)
             # 進捗状況を保存
-            save_progress(dataset_name, shot_type, model_name, results, correct, i + 1)
+            save_progress(dataset_name, shot_type, model_name, results, correct, i + 1, output_dir)
 
         # APIリクエストの間隔を空ける
         time.sleep(0.5)
@@ -408,7 +424,7 @@ def evaluate_last_letter_connection(model_name, shot_type="shot", api_key=None):
     }
 
 
-def evaluate_mawps(model_name, shot_type="shot", api_key=None):
+def evaluate_mawps(model_name, shot_type="shot", api_key=None, output_dir="results"):
     """mawpsのベンチマークを実施する"""
     dataset_name = "mawps"
     test_data = load_dataset(f"dataset/{dataset_name}/test.json")
@@ -451,7 +467,15 @@ def evaluate_mawps(model_name, shot_type="shot", api_key=None):
         if is_correct:
             correct += 1
 
-        results.append({"question": question, "answer": answer, "predicted": predicted, "is_correct": is_correct})
+        # 結果に完全な回答も含める
+        result_item = {
+            "question": question,
+            "answer": answer,
+            "predicted": predicted,
+            "is_correct": is_correct,
+            "full_response": response,
+        }
+        results.append(result_item)
 
         if (i + 1) % 10 == 0:
             accuracy_so_far = correct / (i + 1)
@@ -459,7 +483,7 @@ def evaluate_mawps(model_name, shot_type="shot", api_key=None):
             print(f"Current accuracy: {accuracy_so_far:.4f} ({correct}/{i + 1})")
             print("=" * 50)
             # 進捗状況を保存
-            save_progress(dataset_name, shot_type, model_name, results, correct, i + 1)
+            save_progress(dataset_name, shot_type, model_name, results, correct, i + 1, output_dir)
 
         # APIリクエストの間隔を空ける
         time.sleep(0.5)
@@ -477,7 +501,7 @@ def evaluate_mawps(model_name, shot_type="shot", api_key=None):
     }
 
 
-def evaluate_mgsm(model_name, shot_type="shot", api_key=None):
+def evaluate_mgsm(model_name, shot_type="shot", api_key=None, output_dir="results"):
     """mgsmのベンチマークを実施する"""
     dataset_name = "mgsm"
     test_data = load_dataset(f"dataset/{dataset_name}/test.json")
@@ -520,7 +544,15 @@ def evaluate_mgsm(model_name, shot_type="shot", api_key=None):
         if is_correct:
             correct += 1
 
-        results.append({"question": question, "answer": answer, "predicted": predicted, "is_correct": is_correct})
+        # 結果に完全な回答も含める
+        result_item = {
+            "question": question,
+            "answer": answer,
+            "predicted": predicted,
+            "is_correct": is_correct,
+            "full_response": response,
+        }
+        results.append(result_item)
 
         if (i + 1) % 10 == 0:
             accuracy_so_far = correct / (i + 1)
@@ -528,7 +560,7 @@ def evaluate_mgsm(model_name, shot_type="shot", api_key=None):
             print(f"Current accuracy: {accuracy_so_far:.4f} ({correct}/{i + 1})")
             print("=" * 50)
             # 進捗状況を保存
-            save_progress(dataset_name, shot_type, model_name, results, correct, i + 1)
+            save_progress(dataset_name, shot_type, model_name, results, correct, i + 1, output_dir)
 
         # APIリクエストの間隔を空ける
         time.sleep(0.5)
@@ -546,13 +578,21 @@ def evaluate_mgsm(model_name, shot_type="shot", api_key=None):
     }
 
 
-def save_progress(dataset_name, shot_type, model_name, results, correct, processed):
+def save_progress(dataset_name, shot_type, model_name, results, correct, processed, output_dir=None):
     """進捗状況を保存する"""
     sanitized_model_name = sanitize_model_name(model_name)
-    results_dir = Path("results")
-    results_dir.mkdir(exist_ok=True)
 
-    progress_file = results_dir / f"{sanitized_model_name}_{dataset_name}_{shot_type}_progress.json"
+    # 出力ディレクトリが指定されていない場合は、デフォルトのresultsディレクトリを使用
+    if output_dir is None:
+        results_dir = Path("results")
+    else:
+        results_dir = Path(output_dir)
+
+    results_dir.mkdir(exist_ok=True, parents=True)
+
+    # タイムスタンプを含むファイル名
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    progress_file = results_dir / f"{sanitized_model_name}_{dataset_name}_{shot_type}_progress_{timestamp}.json"
 
     with open(progress_file, "w", encoding="utf-8") as f:
         json.dump(
@@ -563,6 +603,7 @@ def save_progress(dataset_name, shot_type, model_name, results, correct, process
                 "processed": processed,
                 "correct": correct,
                 "accuracy_so_far": correct / processed,
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "results": results,
             },
             f,
@@ -570,19 +611,40 @@ def save_progress(dataset_name, shot_type, model_name, results, correct, process
             indent=2,
         )
 
+    print(f"Progress saved to {progress_file}")
+    return progress_file
 
-def save_results(results, model_name, dataset_name, shot_type):
+
+def save_results(results, model_name, dataset_name, shot_type, output_file=None):
     """結果を保存する"""
     sanitized_model_name = sanitize_model_name(model_name)
-    results_dir = Path("results")
-    results_dir.mkdir(exist_ok=True)
 
-    results_file = results_dir / f"{sanitized_model_name}_{dataset_name}_{shot_type}.json"
+    # 出力ファイルが指定されていない場合は、デフォルトのファイル名を生成
+    if output_file is None:
+        results_dir = Path("results")
+        results_dir.mkdir(exist_ok=True, parents=True)
+
+        # タイムスタンプを含むファイル名
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        results_file = results_dir / f"{sanitized_model_name}_{dataset_name}_{shot_type}_{timestamp}.json"
+    else:
+        results_file = Path(output_file)
+        results_file.parent.mkdir(exist_ok=True, parents=True)
+
+    # 結果に追加情報を付加
+    enhanced_results = {
+        "dataset": dataset_name,
+        "shot_type": shot_type,
+        "model": model_name,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        "results": results,
+    }
 
     with open(results_file, "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
+        json.dump(enhanced_results, f, ensure_ascii=False, indent=2)
 
     print(f"Results saved to {results_file}")
+    return results_file
 
 
 def main():
@@ -603,6 +665,17 @@ def main():
         type=str,
         help="API key for Gemini models (required when model_name is 'gemini2.0-flash')",
     )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="results",
+        help="Directory to save results (default: results)",
+    )
+    parser.add_argument(
+        "--save-full-responses",
+        action="store_true",
+        help="Save full model responses in the results (may increase file size)",
+    )
 
     args = parser.parse_args()
 
@@ -617,26 +690,55 @@ def main():
     print(f"Benchmarking model: {args.model_name} (sanitized: {sanitized_model_name})")
     print(f"Shot type: {args.shot_type}")
     print(f"Dataset: {args.dataset}")
+    print(f"Output directory: {args.output_dir}")
+    print(f"Save full responses: {args.save_full_responses}")
 
     # 結果ディレクトリの作成
-    results_dir = Path("results")
-    results_dir.mkdir(exist_ok=True)
+    results_dir = Path(args.output_dir)
+    results_dir.mkdir(exist_ok=True, parents=True)
+
+    # タイムスタンプ（すべてのデータセットで共通）
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
 
     if args.dataset == "jcommonsenseqa" or args.dataset == "all":
-        results = evaluate_jcommonsenseqa(args.model_name, args.shot_type, args.api_key)
-        save_results(results, args.model_name, "jcommonsenseqa", args.shot_type)
+        results = evaluate_jcommonsenseqa(args.model_name, args.shot_type, args.api_key, args.output_dir)
+        # 完全な回答を保存しない場合は、resultsから削除
+        if not args.save_full_responses:
+            for item in results["results"]:
+                if "full_response" in item:
+                    del item["full_response"]
+        output_file = results_dir / f"{sanitized_model_name}_jcommonsenseqa_{args.shot_type}_{timestamp}.json"
+        save_results(results, args.model_name, "jcommonsenseqa", args.shot_type, output_file)
 
     if args.dataset == "last_letter_connection" or args.dataset == "all":
-        results = evaluate_last_letter_connection(args.model_name, args.shot_type, args.api_key)
-        save_results(results, args.model_name, "last_letter_connection", args.shot_type)
+        results = evaluate_last_letter_connection(args.model_name, args.shot_type, args.api_key, args.output_dir)
+        # 完全な回答を保存しない場合は、resultsから削除
+        if not args.save_full_responses:
+            for item in results["results"]:
+                if "full_response" in item:
+                    del item["full_response"]
+        output_file = results_dir / f"{sanitized_model_name}_last_letter_connection_{args.shot_type}_{timestamp}.json"
+        save_results(results, args.model_name, "last_letter_connection", args.shot_type, output_file)
 
     if args.dataset == "mawps" or args.dataset == "all":
-        results = evaluate_mawps(args.model_name, args.shot_type, args.api_key)
-        save_results(results, args.model_name, "mawps", args.shot_type)
+        results = evaluate_mawps(args.model_name, args.shot_type, args.api_key, args.output_dir)
+        # 完全な回答を保存しない場合は、resultsから削除
+        if not args.save_full_responses:
+            for item in results["results"]:
+                if "full_response" in item:
+                    del item["full_response"]
+        output_file = results_dir / f"{sanitized_model_name}_mawps_{args.shot_type}_{timestamp}.json"
+        save_results(results, args.model_name, "mawps", args.shot_type, output_file)
 
     if args.dataset == "mgsm" or args.dataset == "all":
-        results = evaluate_mgsm(args.model_name, args.shot_type, args.api_key)
-        save_results(results, args.model_name, "mgsm", args.shot_type)
+        results = evaluate_mgsm(args.model_name, args.shot_type, args.api_key, args.output_dir)
+        # 完全な回答を保存しない場合は、resultsから削除
+        if not args.save_full_responses:
+            for item in results["results"]:
+                if "full_response" in item:
+                    del item["full_response"]
+        output_file = results_dir / f"{sanitized_model_name}_mgsm_{args.shot_type}_{timestamp}.json"
+        save_results(results, args.model_name, "mgsm", args.shot_type, output_file)
 
 
 if __name__ == "__main__":
