@@ -4,8 +4,14 @@ import os
 import re
 import time
 from pathlib import Path
-import google.generativeai as genai
 from datetime import datetime
+
+try:
+    import google.generativeai as genai
+except ImportError:
+    print("Error: google-generativeai package is not installed")
+    print("Please install it using: pip install google-generativeai")
+    exit(1)
 
 
 def query_gemini(prompt, api_key, max_retries=5):
