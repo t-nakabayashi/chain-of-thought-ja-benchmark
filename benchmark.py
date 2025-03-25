@@ -5,7 +5,6 @@ import re
 import time
 from pathlib import Path
 import requests
-import google.generativeai as genai
 
 
 def sanitize_model_name(model_name):
@@ -53,6 +52,14 @@ def query_gemini(prompt, api_key, max_retries=5):
     """Gemini APIを使用してモデルに問い合わせる"""
     if not api_key:
         print("Error: API key is required for Gemini models")
+        return None
+
+    try:
+        # Gemini APIをインポート
+        import google.generativeai as genai
+    except ImportError:
+        print("Error: google-generativeai package is not installed")
+        print("Please install it using: pip install google-generativeai")
         return None
 
     # Gemini APIの設定
